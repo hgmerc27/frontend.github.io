@@ -3,77 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nhập và hiển thị thông tin sinh viên</title>
+    <title>Quản lý sinh viên</title>
+    <style>
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
-    <h1>Nhập số lượng sinh viên:</h1>
-    <input type="number" id="soLuongSV" min="1">
-    <button onclick="nhapThongTinSV()">Nhập thông tin</button>
+    <h1>Quản lý thông tin sinh viên</h1>
 
-    <div id="danhSachSV"></div>
+    <label for="quantity">Nhập số lượng sinh viên: </label>
+    <input type="number" id="quantity" min="1">
+    <button onclick="createStudentForms()">Nhập thông tin</button>
 
-    <button onclick="hienThiThongTinSV()">Hiển thị thông tin</button>
+    <table id="studentTable">
+        <!-- Biểu mẫu sẽ được thêm vào đây -->
+    </table>
+
+    <button onclick="displayStudentInfo()">Hiển thị thông tin sinh viên</button>
+
+    <div id="studentInfo"></div>
+
     <script>
-        function nhapThongTinSV() {
-    let soLuongSV = document.getElementById("soLuongSV").value;
-    let danhSachSV = [];
-    for (let i = 0; i < soLuongSV; i++) {
-        let maSV = "MSSV" + (i + 1);
-        let hoTen = prompt("Nhập họ tên sinh viên " + maSV + ":");
-        let ngaySinh = prompt("Nhập ngày sinh sinh viên " + maSV + " (dd/mm/yyyy):");
-        let lopHoc = prompt("Nhập lớp học sinh viên " + maSV + ":");
-        let diemGPA = prompt("Nhập điểm GPA sinh viên " + maSV + ":");
+        let students = [];
 
-        let sinhVien = {
-            maSV: maSV,
-            hoTen: hoTen,
-            ngaySinh: ngaySinh,
-            lopHoc: lopHoc,
-            diemGPA: diemGPA,
-        };
-        danhSachSV.push(sinhVien);
-    }
-    localStorage.setItem("danhSachSV", JSON.stringify(danhSachSV));
-}
+        function createStudentForms() {
+            const quantity = document.getElementById('quantity').value;
+            students = [];
 
-function hienThiThongTinSV() {
-    let danhSachSV = JSON.parse(localStorage.getItem("danhSachSV"));
-    let html = "";
-    for (let sinhVien of danhSachSV) {
-        html += `
-            <div class="sinhvien">
-                <h2>${sinhVien.maSV}</h2>
-                <p>Họ tên: ${sinhVien.hoTen}</p>
-                <p>Ngày sinh: ${sinhVien.ngaySinh}</p>
-                <p>Lớp học: ${sinhVien.lopHoc}</p>
-                <p>Điểm GPA: ${sinhVien.diemGPA}</p>
-            </div>
-        `;
-    }
-    document.getElementById("danhSachSV").innerHTML = html;
-}
+            let tableHTML = '<tr><th>Số thứ tự</th><th>Mã sinh viên</th><th>Họ và tên</th><th>Ngày sinh</th><th>Lớp học</th><th>Điểm GPA</th></tr>';
 
-// Cập nhật thông tin
-function capNhatThongTinSV(maSV) {
-    let sinhVien = danhSachSV.find((sv) => sv.maSV === maSV);
-    // Lấy thông tin mới từ người dùng
-    let hoTen = prompt("Nhập họ tên mới cho sinh viên " + maSV + ":");
-    let ngaySinh = prompt("Nhập ngày sinh mới cho sinh viên " + maSV + " (dd/mm/yyyy):");
-    let lopHoc = prompt("Nhập lớp học mới cho sinh viên " + maSV + ":");
-    let diemGPA = prompt("Nhập điểm GPA mới cho sinh viên " + maSV + ":");
+            for (let i = 1; i <= quantity; i++) {
+                tableHTML += `
+                    <tr>
+                        <td>${i}</td>
+                        <td><input type="text" id="maSV${i}"></td>
+                        <td><input type="text" id="hoTen${i}"></td>
+                        <td><input type="text" id="ngaySinh${i}"></td>
+                        <td><input type="text" id="lopHoc${i}"></td>
+                        <td><input type="text" id="diemGPA${i}"></td>
+                    </tr>
+                `;
 
-    // Cập nhật thông tin sinh viên
-    sinhVien.hoTen = hoTen;
-    sinhVien.ngaySinh = ngaySinh;
-    sinhVien.lopHoc = lopHoc;
-    sinhVien.diemGPA = diemGPA;
+                students.push({
+                    id: i,
+                    maSV: `maSV${i}`,
+                    hoTen: `hoTen${i}`,
+                    ngaySinh: `ngaySinh${i}`,
+                    lopHoc: `lopHoc${i}`,
+                    diemGPA: `diemGPA${i}`
+                });
+            }
 
-    // Lưu trữ danh sách sinh viên đã cập nhật
-    localStorage.setItem("danhSachSV", JSON.stringify(danhSachSV));
+            document.getElementById('studentTable').innerHTML = tableHTML;
+        }
 
-    // Hiển thị lại thông tin sinh viên
-    hienThiThongTinSV();
-}
+        function displayStudentInfo() {
+            let displayText = '<h2>Thông tin sinh viên</h2>';
+
+            students.forEach((student, index) => {
+                const maSV = document.getElementById(student.maSV).value;
+                const hoTen = document.getElementById(student.hoTen).value;
+                const ngaySinh = document.getElementById(student.ngaySinh).value;
+                const lopHoc = document.getElementById(student.lopHoc).value;
+                const diemGPA = document.getElementById(student.diemGPA).value;
+
+                displayText += `<p><strong>Sinh viên ${index + 1}:</strong></p>`;
+                displayText += `<p>Mã sinh viên: ${maSV}</p>`;
+                displayText += `<p>Họ và tên: ${hoTen}</p>`;
+                displayText += `<p>Ngày sinh: ${ngaySinh}</p>`;
+                displayText += `<p>Lớp học: ${lopHoc}</p>`;
+                displayText += `<p>Điểm GPA: ${diemGPA}</p>`;
+            });
+
+            document.getElementById('studentInfo').innerHTML = displayText;
+        }
     </script>
 </body>
 </html>
